@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>db-schema-forge - database schema design reviewer</title>
+<link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <span class="mark">DB</span>
+    <div>
+      <h1>db-schema-forge</h1>
+      <p class="sub">Paste a schema. Get the scorecard, the gaps and the
+      fixed DDL. Runs entirely on your machine.</p>
+    </div>
+  </div>
+  <div class="topbar-actions">
+    <label class="field">
+      <span>Schema profile</span>
+      <select id="profile"></select>
+    </label>
+    <button id="sampleBtn" class="btn ghost">Load a sample</button>
+  </div>
+</header>
+
+<main class="layout">
+  <section class="panel input-panel">
+    <div class="panel-head">
+      <h2>Schema</h2>
+      <span class="muted small" id="inputHint">Postgres / MySQL DDL, or the
+        quick sketch format</span>
+    </div>
+    <textarea id="schemaInput" spellcheck="false" placeholder="CREATE TABLE users (
+    id BIGSERIAL PRIMARY KEY,
+    email VARCHAR(254) NOT NULL UNIQUE,
+    org_id BIGINT NOT NULL REFERENCES orgs(id)
+);"></textarea>
+    <div class="input-actions">
+      <button id="analyzeBtn" class="btn primary">Review schema</button>
+      <button id="saveBtn" class="btn ghost">Review &amp; save</button>
+      <button id="clearBtn" class="btn ghost subtle">Clear</button>
+    </div>
+    <p class="muted small" id="status"></p>
+
+    <div class="history">
+      <div class="panel-head">
+        <h3>Run history</h3>
+        <span class="muted small" id="historyCount"></span>
+      </div>
+      <div id="historyList" class="history-list"></div>
+    </div>
+  </section>
+
+  <section class="panel result-panel" id="resultPanel">
+    <div id="emptyState" class="empty">
+      <h2>Nothing reviewed yet</h2>
+      <p>Paste DDL on the left and press <strong>Review schema</strong>, or
+      load one of the built-in samples to see what the tool catches.</p>
+      <ul class="empty-list">
+        <li>50+ rules across normalisation, keying, typing, integrity and
+            operability</li>
+        <li>Structural caps, so a schema cannot score well by skipping the
+            hard part</li>
+        <li>A prioritised fix plan with an estimated score gain per fix</li>
+        <li>An improved DDL scaffold with the safe fixes already applied</li>
+      </ul>
+    </div>
+
+    <div id="results" class="hidden">
+      <div class="score-head">
+        <div class="score-num">
+          <span id="scoreValue">0</span>
+          <span class="score-max">/100</span>
+        </div>
+        <div class="score-meta">
+          <span id="verdictPill" class="pill big">-</span>
+          <p id="verdictBlurb" class="muted"></p>
+          <p id="statsLine" class="muted small"></p>
+        </div>
+      </div>
+
+      <div id="axisPills" class="axis-row"></div>
+      <div id="capBox"></div>
+      <div id="strengthBox"></div>
+
+      <nav class="tabs" id="tabs">
+        <button class="tab active" data-tab="findings">Findings</button>
+        <button class="tab" data-tab="plan">Fix plan</button>
+        <button class="tab" data-tab="norm">Normalisation</button>
+        <button class="tab" data-tab="map">Schema map</button>
+        <button class="tab" data-tab="ddl">Improved DDL</button>
+      </nav>
+
+      <div class="tab-pane active" id="pane-findings">
+        <div class="filters" id="sevFilters">
+          <button class="chip active" data-sev="all">All</button>
+          <button class="chip" data-sev="high">High</button>
+          <button class="chip" data-sev="medium">Medium</button>
+          <button class="chip" data-sev="low">Low</button>
+          <select id="axisFilter">
+            <option value="all">All axes</option>
+            <option value="normalization">Normalisation</option>
+            <option value="keying">Keying</option>
+            <option value="typing">Typing</option>
+            <option value="integrity">Integrity</option>
+            <option value="operability">Operability</option>
+          </select>
+        </div>
+        <div id="findingsList"></div>
+      </div>
+
+      <div class="tab-pane" id="pane-plan">
+        <div id="planList"></div>
+      </div>
+
+      <div class="tab-pane" id="pane-norm">
+        <div id="normList"></div>
+      </div>
+
+      <div class="tab-pane" id="pane-map">
+        <div id="mapList"></div>
+      </div>
+
+      <div class="tab-pane" id="pane-ddl">
+        <div class="ddl-actions">
+          <button id="copyDdl" class="btn ghost">Copy</button>
+          <button id="downloadDdl" class="btn ghost">Download .sql</button>
+          <button id="downloadMd" class="btn ghost">Download report .md</button>
+          <button id="downloadJson" class="btn ghost">Download .json</button>
+        </div>
+        <div id="appliedList" class="applied"></div>
+        <pre id="ddlOut" class="code"></pre>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div id="sampleModal" class="modal hidden">
+  <div class="modal-card">
+    <div class="panel-head">
+      <h2>Built-in samples</h2>
+      <button id="sampleClose" class="btn ghost subtle">Close</button>
+    </div>
+    <div id="sampleList" class="sample-list"></div>
+  </div>
+</div>
+
+<script src="/static/app.js"></script>
+</body>
+</html>
